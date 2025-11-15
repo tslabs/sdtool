@@ -1,0 +1,58 @@
+
+#include <zephyr/dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
+#include <zephyr/dt-bindings/gpio/gpio.h>
+#include <zephyr/dt-bindings/led/led.h>
+
+&zephyr_udc0
+{
+  usb_uart0: cdc_acm_uart0
+  {
+    compatible = "zephyr,cdc-acm-uart";
+  };
+};
+
+/ {
+    chosen
+    {
+      zephyr,shell-uart = &usb_uart0;
+    };
+};
+
+&pinctrl 
+{
+	spi0_default: spi0_default 
+  {
+    group1
+    {
+      pinmux = <SPI0_SCK_P2>, <SPI0_TX_P3>;
+    };
+
+    group2
+    {
+      pinmux = <SPI0_RX_P4>;
+      input-enable;
+    };
+	};
+};
+
+&spi0 
+{
+	status = "okay";
+	pinctrl-0 = <&spi0_default>;
+	cs-gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+  clock-frequency = <25000000>;
+	pinctrl-names = "default";
+
+	sdhc0: sdhc@0 
+  {
+		compatible = "zephyr,sdhc-spi-slot";
+		reg = <0>;
+		status = "okay";
+		spi-max-frequency = <25000000>;
+		mmc 
+    {
+      compatible = "zephyr,sdmmc-disk";
+      status = "okay";
+    };
+  };
+};
